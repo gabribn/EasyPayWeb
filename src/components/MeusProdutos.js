@@ -92,9 +92,11 @@ const styles = {
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 250px))',
     gap: '20px',
-  },
+    justifyContent: 'center',
+  }
+  ,
   card: {
     backgroundColor: '#fff',
     padding: '20px',
