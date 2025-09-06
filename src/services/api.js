@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:5107/api', // Endereço da sua API
+  baseURL: 'http://localhost:5107/api', 
 });
 
 export const getProdutos = () => api.get('/produto');

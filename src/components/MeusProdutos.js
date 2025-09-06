@@ -16,7 +16,6 @@ const MeusProdutos = () => {
       .catch((error) => console.error('Erro ao buscar produtos:', error));
   }, []);
 
-  // Filtra os produtos com base na pesquisa
   const produtosFiltrados = produtos.filter(
     (produto) =>
       produto.nome.toLowerCase().includes(pesquisa.toLowerCase()) ||
@@ -27,7 +26,6 @@ const MeusProdutos = () => {
     <div style={styles.wrapper}>
       <h2 style={styles.title}>Meus Produtos</h2>
 
-      {/* Barra de pesquisa */}
       <div style={styles.searchContainer}>
         <input
           type="text"
@@ -38,7 +36,6 @@ const MeusProdutos = () => {
         />
       </div>
 
-      {/* Grid de produtos */}
       <div style={styles.grid}>
         {produtosFiltrados.length > 0 ? (
           produtosFiltrados.map((produto) => (

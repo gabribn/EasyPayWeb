@@ -3,12 +3,11 @@ import { useParams } from 'react-router-dom';
 import { getVendas } from '../services/api';
 
 const RelatorioVendas = () => {
-  const { id } = useParams(); // produtoId
+  const { id } = useParams();
   const [vendas, setVendas] = useState([]);
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
 
-  // Requisição apenas uma vez, com todas as vendas
   useEffect(() => {
     if (id) {
       getVendas(id)
@@ -22,15 +21,12 @@ const RelatorioVendas = () => {
     }
   }, [id]);
 
-  // Filtragem de vendas no frontend considerando os dias inteiros
   const vendasFiltradas = vendas.filter((v) => {
     const dataVenda = new Date(v.dataVenda);
 
-    // Filtro para data de início (inclusivo)
     const inicioOk =
       !dataInicio || dataVenda >= new Date(`${dataInicio}T00:00:00.000Z`);
 
-    // Filtro para data de fim (inclusivo até o final do dia)
     const fimOk =
       !dataFim ||
       dataVenda <= new Date(`${dataFim}T23:59:59.999Z`);
@@ -38,7 +34,6 @@ const RelatorioVendas = () => {
     return inicioOk && fimOk;
   });
 
-  // Agrupamento por dia (YYYY-MM-DD)
   const vendasPorDia = vendasFiltradas.reduce((acc, venda) => {
     const dia = new Date(venda.dataVenda).toISOString().split('T')[0];
     acc[dia] = acc[dia] || { unidades: 0, total: 0 };

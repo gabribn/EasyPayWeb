@@ -34,7 +34,7 @@ const ProdutoForm = () => {
     };
 
     const action = id ? updateProduto(id, produtoToSend) : createProduto(produtoToSend);
-    action.then(() => navigate('/relatorio-vendas'));
+    action.then(() => navigate('/meus-produtos'));
   };
 
   const handleAddToCart = () => {

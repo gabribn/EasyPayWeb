@@ -3,8 +3,8 @@ import { getProdutos } from '../services/api';
 
 const EstoqueProdutos = () => {
   const [produtos, setProdutos] = useState([]);
-  const [produtoSelecionado, setProdutoSelecionado] = useState(null); // Para armazenar o produto selecionado
-  const [isModalOpen, setIsModalOpen] = useState(false); // Controla a visibilidade do modal
+  const [produtoSelecionado, setProdutoSelecionado] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     getProdutos()
@@ -15,24 +15,20 @@ const EstoqueProdutos = () => {
       .catch((error) => console.error('Erro ao buscar produtos:', error));
   }, []);
 
-  // Função para calcular a porcentagem da barra de estoque
   const calcularPorcentagemEstoque = (estoque) => {
-    return Math.min((estoque / 100) * 100, 100); // Limita a 100%
+    return Math.min((estoque / 100) * 100, 100);
   };
 
-  // Função para abrir o modal e selecionar o produto
   const abrirModal = (produto) => {
     setProdutoSelecionado(produto);
     setIsModalOpen(true);
   };
 
-  // Função para fechar o modal
   const fecharModal = () => {
     setIsModalOpen(false);
     setProdutoSelecionado(null);
   };
 
-  // Função para formatar a data
   const formatarData = (data) => {
     const date = new Date(data);
     return date.toLocaleDateString('pt-BR');
@@ -42,16 +38,14 @@ const EstoqueProdutos = () => {
     <div style={styles.wrapper}>
       <h2 style={styles.title}>Estoque de Produtos</h2>
 
-      {/* Grid de produtos */}
       <div style={styles.grid}>
         {produtos.length > 0 ? (
           produtos.map((produto) => (
             <div
               key={produto.id}
               style={styles.card}
-              onClick={() => abrirModal(produto)} // Abre o modal ao clicar no card
+              onClick={() => abrirModal(produto)}
             >
-              {/* Imagem e Nome do Produto lado a lado */}
               <div style={styles.topContainer}>
                 <img
                   src={produto.imagemUrl}
@@ -61,7 +55,6 @@ const EstoqueProdutos = () => {
                 <h3 style={styles.productName}>{produto.nome}</h3>
               </div>
 
-              {/* Barra de estoque */}
               <div style={styles.estoqueContainer}>
                 <span>Estoque: {produto.estoque}</span>
                 <div style={styles.progressBarBackground}>
@@ -80,7 +73,6 @@ const EstoqueProdutos = () => {
         )}
       </div>
 
-      {/* Modal */}
       {isModalOpen && produtoSelecionado && (
         <div style={styles.modalOverlay}>
           <div style={styles.modal}>
@@ -104,7 +96,6 @@ const EstoqueProdutos = () => {
                 </div>
               </div>
 
-              {/* Registro de entrada e saída */}
               <div style={styles.registroContainer}>
                 <ul style={styles.registroList}>
                   <li style={styles.registroItem}>
@@ -148,7 +139,7 @@ const styles = {
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(3, 1fr)', // 3 produtos por linha
+    gridTemplateColumns: 'repeat(3, 1fr)',
     gap: '20px',
   },
   card: {
@@ -157,25 +148,25 @@ const styles = {
     borderRadius: '10px',
     boxShadow: '0 0 10px rgba(0,0,0,0.1)',
     textAlign: 'center',
-    cursor: 'pointer', // Indica que o card é clicável
+    cursor: 'pointer', 
   },
   topContainer: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between', // Alinha a imagem e nome lado a lado
+    justifyContent: 'space-between', 
     marginBottom: '15px',
   },
   image: {
-    width: '50px', // Tamanho fixo da imagem
-    height: '50px', // Tamanho fixo da imagem
+    width: '50px',
+    height: '50px', 
     objectFit: 'cover',
-    borderRadius: '50%', // Deixa a imagem redonda
+    borderRadius: '50%',
   },
   productName: {
     marginLeft: '10px',
     fontSize: '16px',
     fontWeight: 'bold',
-    flex: 1, // Faz o nome ocupar o espaço restante
+    flex: 1, 
   },
   estoqueContainer: {
     marginTop: '10px',
@@ -193,7 +184,7 @@ const styles = {
     backgroundColor: '#76c7c0',
     borderRadius: '5px',
   },
-  // Estilos do modal
+
   modalOverlay: {
     position: 'fixed',
     top: 0,
@@ -238,12 +229,12 @@ const styles = {
     textAlign: 'left',
   },
   registroList: {
-    listStyleType: 'disc', // Usando bolinhas para as entradas e saídas
+    listStyleType: 'disc', 
     paddingLeft: '20px',
     marginTop: '20px',
   },
   registroItem: {
-    marginBottom: '15px', // Espaçamento entre os itens da lista
+    marginBottom: '15px', 
   },
   entrada: {
     color: 'green',
