@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getProdutoId, updateProduto, deleteProduto } from '../services/api';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getProdutoId, updateProduto, deleteProduto } from "../services/api";
 
 const EditarProduto = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [produto, setProduto] = useState({
-    nome: '',
-    preco: '',
-    estoque: '',
-    imagemUrl: '',
-    categoria: '',
+    nome: "",
+    preco: "",
+    estoque: "",
+    imagemUrl: "",
+    categoria: "",
   });
 
   useEffect(() => {
@@ -21,8 +21,8 @@ const EditarProduto = () => {
         setProduto(data);
       })
       .catch((err) => {
-        console.error('Erro ao carregar produto:', err);
-        alert('Erro ao carregar produto.');
+        console.error("Erro ao carregar produto:", err);
+        alert("Erro ao carregar produto.");
       });
   }, [id]);
 
@@ -41,32 +41,32 @@ const EditarProduto = () => {
 
     updateProduto(id, produtoAtualizado)
       .then(() => {
-        alert('Produto atualizado com sucesso!');
-        navigate('/meus-produtos');
+        alert("Produto atualizado com sucesso!");
+        navigate("/meus-produtos");
       })
       .catch((err) => {
-        console.error('Erro ao atualizar produto:', err);
-        alert('Erro ao salvar produto.');
+        console.error("Erro ao atualizar produto:", err);
+        alert("Erro ao salvar produto.");
       });
   };
 
   const handleExcluir = () => {
-    if (window.confirm('Tem certeza que deseja excluir este produto?')) {
+    if (window.confirm("Tem certeza que deseja excluir este produto?")) {
       deleteProduto(id)
         .then(() => {
-          alert('Produto excluído com sucesso!');
-          navigate('/meus-produtos');
+          alert("Produto excluído com sucesso!");
+          navigate("/meus-produtos");
         })
         .catch((err) => {
-          console.error('Erro ao excluir produto:', err);
-          alert('Erro ao excluir produto.');
+          console.error("Erro ao excluir produto:", err);
+          alert("Erro ao excluir produto.");
         });
     }
   };
 
   const handleRelatorioVendas = (e) => {
     e.preventDefault(); // Impede que o envio do formulário seja acionado
-    navigate(`/relatorio-vendas/${produto.nome}`);
+    navigate(`/relatorio-vendas/${produto.id}`);
   };
 
   return (
@@ -139,16 +139,25 @@ const EditarProduto = () => {
             </select>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-            <button type="submit" style={styles.saveButton}>Salvar</button>
-            <button type="button" onClick={handleExcluir} style={styles.deleteButton}>
+          <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+            <button type="submit" style={styles.saveButton}>
+              Salvar
+            </button>
+            <button
+              type="button"
+              onClick={handleExcluir}
+              style={styles.deleteButton}
+            >
               Excluir
             </button>
           </div>
 
           {/* Botão Relatório de Vendas abaixo dos botões Salvar e Excluir */}
-          <div style={{ marginTop: '20px', textAlign: 'center' }}>
-            <button onClick={handleRelatorioVendas} style={styles.relatorioButton}>
+          <div style={{ marginTop: "20px", textAlign: "center" }}>
+            <button
+              onClick={handleRelatorioVendas}
+              style={styles.relatorioButton}
+            >
               Relatório de Vendas
             </button>
           </div>
@@ -156,19 +165,25 @@ const EditarProduto = () => {
       </div>
 
       {/* Preview */}
-      <div style={{ maxWidth: '300px' }}>
+      <div style={{ maxWidth: "300px" }}>
         <h3 style={styles.previewTitle}>Prévia</h3>
         <div style={styles.previewCard}>
           {produto.imagemUrl && (
             <img
               src={produto.imagemUrl}
               alt="Preview"
-              style={{ width: '100%', borderRadius: '8px', marginBottom: '10px' }}
+              style={{
+                width: "100%",
+                borderRadius: "8px",
+                marginBottom: "10px",
+              }}
             />
           )}
-          <p><strong>{produto.nome || 'Nome do produto'}</strong></p>
-          <p style={{ color: 'green', fontWeight: 'bold' }}>
-            R$ {produto.preco ? Number(produto.preco).toFixed(2) : '--'}
+          <p>
+            <strong>{produto.nome || "Nome do produto"}</strong>
+          </p>
+          <p style={{ color: "green", fontWeight: "bold" }}>
+            R$ {produto.preco ? Number(produto.preco).toFixed(2) : "--"}
           </p>
           <p>{produto.categoria}</p>
         </div>
@@ -179,83 +194,83 @@ const EditarProduto = () => {
 
 const styles = {
   wrapper: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    gap: '30px',
-    padding: '40px',
-    flexWrap: 'wrap',
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    gap: "30px",
+    padding: "40px",
+    flexWrap: "wrap",
   },
   container: {
-    width: '100%',
-    maxWidth: '400px',
-    backgroundColor: '#fff',
-    padding: '30px',
-    borderRadius: '10px',
-    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-    fontFamily: 'Arial, sans-serif',
+    width: "100%",
+    maxWidth: "400px",
+    backgroundColor: "#fff",
+    padding: "30px",
+    borderRadius: "10px",
+    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+    fontFamily: "Arial, sans-serif",
   },
   title: {
-    textAlign: 'center',
-    marginBottom: '20px',
+    textAlign: "center",
+    marginBottom: "20px",
   },
   form: {
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
   },
   formGroup: {
-    marginBottom: '15px',
+    marginBottom: "15px",
   },
   input: {
-    width: '100%',
-    padding: '8px',
-    fontSize: '14px',
-    borderRadius: '4px',
-    border: '1px solid #ccc',
+    width: "100%",
+    padding: "8px",
+    fontSize: "14px",
+    borderRadius: "4px",
+    border: "1px solid #ccc",
   },
   saveButton: {
     flex: 1,
-    padding: '10px',
-    backgroundColor: '#28a745',
-    color: '#fff',
-    fontWeight: 'bold',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
+    padding: "10px",
+    backgroundColor: "#28a745",
+    color: "#fff",
+    fontWeight: "bold",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
   },
   deleteButton: {
     flex: 1,
-    padding: '10px',
-    backgroundColor: '#dc3545',
-    color: '#fff',
-    fontWeight: 'bold',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
+    padding: "10px",
+    backgroundColor: "#dc3545",
+    color: "#fff",
+    fontWeight: "bold",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
   },
   previewTitle: {
-    marginBottom: '10px',
-    textAlign: 'center',
-    fontSize: '18px',
-    fontWeight: 'bold',
+    marginBottom: "10px",
+    textAlign: "center",
+    fontSize: "18px",
+    fontWeight: "bold",
   },
   previewCard: {
-    backgroundColor: '#f9f9f9',
-    padding: '20px',
-    borderRadius: '10px',
-    boxShadow: '0 0 10px rgba(0,0,0,0.1)',
-    fontFamily: 'Arial, sans-serif',
-    textAlign: 'center',
+    backgroundColor: "#f9f9f9",
+    padding: "20px",
+    borderRadius: "10px",
+    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+    fontFamily: "Arial, sans-serif",
+    textAlign: "center",
   },
   relatorioButton: {
-    width: '100%',
-    padding: '10px',
-    backgroundColor: '#007bff',
-    color: '#fff',
-    fontWeight: 'bold',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
+    width: "100%",
+    padding: "10px",
+    backgroundColor: "#007bff",
+    color: "#fff",
+    fontWeight: "bold",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
   },
 };
 

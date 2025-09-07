@@ -1,44 +1,77 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { getVendas } from '../services/api';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { getVendas, getProdutoId } from "../services/api";
 
 const RelatorioVendas = () => {
   const { id } = useParams();
+  const [produto, setProduto] = useState(null);
   const [vendas, setVendas] = useState([]);
-  const [dataInicio, setDataInicio] = useState('');
-  const [dataFim, setDataFim] = useState('');
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
 
   useEffect(() => {
     if (id) {
+      getProdutoId(id)
+        .then((response) => {
+          const data = response.data?.$values
+            ? response.data.$values[0]
+            : response.data;
+          setProduto(data);
+        })
+        .catch((error) => {
+          console.error("Erro ao carregar produto:", error);
+        });
+
       getVendas(id)
         .then((response) => {
           const data = response.data?.$values || [];
           setVendas(data);
         })
         .catch((error) => {
-          console.error('Erro ao carregar vendas:', error);
+          console.error("Erro ao carregar vendas:", error);
         });
     }
   }, [id]);
 
+  const formatDateToYMD = (dateLike) => {
+    const d = typeof dateLike === "string" ? new Date(dateLike) : dateLike;
+    if (!d || Number.isNaN(d.getTime())) return null;
+
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const displayDatePtBR = (ymd) => {
+    if (!ymd) return "";
+    const [year, month, day] = ymd.split("-");
+    return new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day)
+    ).toLocaleDateString("pt-BR");
+  };
+
   const vendasFiltradas = vendas.filter((v) => {
-    const dataVenda = new Date(v.dataVenda);
+    const vendaYMD = formatDateToYMD(v.dataVenda);
+    if (!vendaYMD) return false;
 
-    const inicioOk =
-      !dataInicio || dataVenda >= new Date(`${dataInicio}T00:00:00.000Z`);
-
-    const fimOk =
-      !dataFim ||
-      dataVenda <= new Date(`${dataFim}T23:59:59.999Z`);
+    const inicioOk = !dataInicio || vendaYMD >= dataInicio;
+    const fimOk = !dataFim || vendaYMD <= dataFim;
 
     return inicioOk && fimOk;
   });
 
   const vendasPorDia = vendasFiltradas.reduce((acc, venda) => {
-    const dia = new Date(venda.dataVenda).toISOString().split('T')[0];
+    const dia = formatDateToYMD(venda.dataVenda);
+    if (!dia) return acc;
+
     acc[dia] = acc[dia] || { unidades: 0, total: 0 };
-    acc[dia].unidades += venda.quantidade;
-    acc[dia].total += venda.valorVendido;
+    acc[dia].unidades += Number(venda.quantidade) || 0;
+    acc[dia].total += Number(venda.valorVendido) || 0;
+
     return acc;
   }, {});
 
@@ -48,13 +81,13 @@ const RelatorioVendas = () => {
   );
 
   const limparFiltros = () => {
-    setDataInicio('');
-    setDataFim('');
+    setDataInicio("");
+    setDataFim("");
   };
 
-  return (
+  return produto ? (
     <div style={styles.container}>
-      <h2 style={styles.title}>Relatório de Vendas</h2>
+      <h2 style={styles.title}>Relatório de Vendas ({produto.nome})</h2>
 
       <div style={styles.filtros}>
         <input
@@ -74,7 +107,7 @@ const RelatorioVendas = () => {
         </button>
       </div>
 
-      {vendasFiltradas.length > 0 ? (
+      {Object.keys(vendasPorDia).length > 0 ? (
         <>
           <h3 style={styles.subTitle}>Unidades Vendidas</h3>
           <div style={styles.grafico}>
@@ -85,8 +118,12 @@ const RelatorioVendas = () => {
                     ...styles.barra,
                     height: `${info.unidades * 10}px`,
                   }}
-                />
-                <span>{new Date(dia).getDate()}</span>
+                >
+                  <span style={{ color: "#fff", fontSize: "12px" }}>
+                    {info.unidades}
+                  </span>
+                </div>
+                <span style={styles.dataLabel}>{displayDatePtBR(dia)}</span>
               </div>
             ))}
           </div>
@@ -95,83 +132,96 @@ const RelatorioVendas = () => {
           <ul style={styles.lista}>
             {Object.entries(vendasPorDia).map(([dia, info]) => (
               <li key={dia}>
-                Valor de Venda Total (Dia {new Date(dia).toLocaleDateString()}):{' '}
+                Valor de Venda Total (Dia {displayDatePtBR(dia)}):{" "}
                 <strong style={styles.valor}>R$ {info.total.toFixed(2)}</strong>
               </li>
             ))}
             <li>
-              Valor de Venda Total (Somatória):{' '}
+              Valor de Venda Total (Somatória):{" "}
               <strong style={styles.valor}>R$ {totalGeral.toFixed(2)}</strong>
             </li>
           </ul>
         </>
       ) : (
-        <p style={{ textAlign: 'center' }}>Nenhuma venda encontrada neste período.</p>
+        <p style={{ textAlign: "center" }}>
+          Nenhuma venda encontrada neste período.
+        </p>
       )}
     </div>
+  ) : (
+    <p style={{ textAlign: "center" }}>Carregando...</p>
   );
 };
 
 const styles = {
   container: {
-    fontFamily: 'Arial, sans-serif',
-    padding: '20px',
-    color: '#333',
+    fontFamily: "Arial, sans-serif",
+    padding: "20px",
+    color: "#333",
   },
   title: {
-    color: '#28a745',
-    textAlign: 'center',
-    marginBottom: '20px',
+    color: "#28a745",
+    textAlign: "center",
+    marginBottom: "20px",
   },
   filtros: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: '10px',
-    marginBottom: '20px',
-    flexWrap: 'wrap',
+    display: "flex",
+    justifyContent: "center",
+    gap: "10px",
+    marginBottom: "20px",
+    flexWrap: "wrap",
   },
   input: {
-    padding: '5px 10px',
-    border: '1px solid #ccc',
-    borderRadius: '4px',
+    padding: "5px 10px",
+    border: "1px solid #ccc",
+    borderRadius: "4px",
   },
   botaoLimpar: {
-    padding: '5px 10px',
-    backgroundColor: '#dc3545',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
+    padding: "5px 10px",
+    backgroundColor: "#dc3545",
+    color: "#fff",
+    border: "none",
+    borderRadius: "4px",
+    cursor: "pointer",
   },
   subTitle: {
-    marginTop: '20px',
-    marginBottom: '10px',
-    color: '#333',
+    marginTop: "20px",
+    marginBottom: "10px",
+    color: "#333",
   },
   grafico: {
-    display: 'flex',
-    gap: '15px',
-    justifyContent: 'center',
-    alignItems: 'end',
-    height: '150px',
-    marginBottom: '30px',
+    display: "flex",
+    gap: "15px",
+    justifyContent: "center",
+    alignItems: "end",
+    height: "150px",
+    marginBottom: "30px",
   },
   barraContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
   },
   barra: {
-    width: '30px',
-    backgroundColor: '#28a745',
-    borderRadius: '4px 4px 0 0',
+    width: "30px",
+    backgroundColor: "#28a745",
+    borderRadius: "4px 4px 0 0",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-end",
+    transition: "height 0.3s ease",
   },
   lista: {
-    listStyle: 'none',
+    listStyle: "none",
     padding: 0,
   },
   valor: {
-    color: '#28a745',
+    color: "#28a745",
+  },
+  dataLabel: {
+    marginTop: "5px",
+    fontSize: "12px",
+    color: "#555",
   },
 };
 
