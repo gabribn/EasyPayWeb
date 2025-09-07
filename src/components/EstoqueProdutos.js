@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { getProdutos } from '../services/api';
+import { getProdutos, getVendas } from '../services/api';
 
 const EstoqueProdutos = () => {
   const [produtos, setProdutos] = useState([]);
   const [produtoSelecionado, setProdutoSelecionado] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [saidas, setSaidas] = useState([]);
 
   useEffect(() => {
     getProdutos()
       .then((response) => {
-        const produtosArray = Array.isArray(response.data) ? response.data : response.data.$values || [];
+        const produtosArray = Array.isArray(response.data)
+          ? response.data
+          : response.data.$values || [];
         setProdutos(produtosArray);
       })
       .catch((error) => console.error('Erro ao buscar produtos:', error));
@@ -22,11 +25,21 @@ const EstoqueProdutos = () => {
   const abrirModal = (produto) => {
     setProdutoSelecionado(produto);
     setIsModalOpen(true);
+
+    getVendas(produto.id)
+      .then((response) => {
+        const vendasArray = Array.isArray(response.data)
+          ? response.data
+          : response.data.$values || [];
+        setSaidas(vendasArray);
+      })
+      .catch((error) => console.error('Erro ao buscar saídas:', error));
   };
 
   const fecharModal = () => {
     setIsModalOpen(false);
     setProdutoSelecionado(null);
+    setSaidas([]);
   };
 
   const formatarData = (data) => {
@@ -97,27 +110,22 @@ const EstoqueProdutos = () => {
               </div>
 
               <div style={styles.registroContainer}>
+                <h4>Saídas registradas:</h4>
                 <ul style={styles.registroList}>
-                  <li style={styles.registroItem}>
-                    <span style={styles.entrada}>+1 unidade (Entrada)</span>
-                    <span style={styles.data}>({formatarData('2025-05-01')})</span>
-                  </li>
-                  <li style={styles.registroItem}>
-                    <span style={styles.saida}>-2 unidades (Saída)</span>
-                    <span style={styles.data}>({formatarData('2025-05-02')})</span>
-                  </li>
-                  <li style={styles.registroItem}>
-                    <span style={styles.entrada}>+3 unidades (Entrada)</span>
-                    <span style={styles.data}>({formatarData('2025-05-03')})</span>
-                  </li>
-                  <li style={styles.registroItem}>
-                    <span style={styles.saida}>-1 unidade (Saída)</span>
-                    <span style={styles.data}>({formatarData('2025-05-04')})</span>
-                  </li>
-                  <li style={styles.registroItem}>
-                    <span style={styles.entrada}>+5 unidades (Entrada)</span>
-                    <span style={styles.data}>({formatarData('2025-05-05')})</span>
-                  </li>
+                  {saidas.length > 0 ? (
+                    saidas.map((saida) => (
+                      <li key={saida.id} style={styles.registroItem}>
+                        <span style={styles.saida}>
+                          -{saida.quantidade} unidades
+                        </span>
+                        <span style={styles.data}>
+                          ({formatarData(saida.dataVenda)})
+                        </span>
+                      </li>
+                    ))
+                  ) : (
+                    <p>Nenhuma saída registrada.</p>
+                  )}
                 </ul>
               </div>
             </div>
@@ -148,17 +156,17 @@ const styles = {
     borderRadius: '10px',
     boxShadow: '0 0 10px rgba(0,0,0,0.1)',
     textAlign: 'center',
-    cursor: 'pointer', 
+    cursor: 'pointer',
   },
   topContainer: {
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'space-between', 
+    justifyContent: 'space-between',
     marginBottom: '15px',
   },
   image: {
     width: '50px',
-    height: '50px', 
+    height: '50px',
     objectFit: 'cover',
     borderRadius: '50%',
   },
@@ -166,7 +174,7 @@ const styles = {
     marginLeft: '10px',
     fontSize: '16px',
     fontWeight: 'bold',
-    flex: 1, 
+    flex: 1,
   },
   estoqueContainer: {
     marginTop: '10px',
@@ -227,14 +235,16 @@ const styles = {
   registroContainer: {
     marginTop: '20px',
     textAlign: 'left',
+    maxHeight: '250px',
+    overflowY: 'auto',
   },
   registroList: {
-    listStyleType: 'disc', 
+    listStyleType: 'disc',
     paddingLeft: '20px',
     marginTop: '20px',
   },
   registroItem: {
-    marginBottom: '15px', 
+    marginBottom: '15px',
   },
   entrada: {
     color: 'green',
